@@ -5,6 +5,7 @@ const gerenteSchema = new mongoose.Schema(
     nome: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     senha: { type: String, required: true },
+    cpf: { type: String, default: "" },
     cargo: { type: String, default: "Gerente" },
   },
   { timestamps: true }

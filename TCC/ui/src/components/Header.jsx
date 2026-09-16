@@ -1,6 +1,6 @@
 import { TIPOS } from "../constants";
 
-export function Header({ usuario, onCarrinho, itensCarrinho = 0, extra, onSair }) {
+export function Header({ usuario, onCarrinho, itensCarrinho = 0, extra, onSair, onTrocarConta }) {
   return (
     <header className="cabecalho">
       <div className="cabecalho-inner">
@@ -26,6 +26,11 @@ export function Header({ usuario, onCarrinho, itensCarrinho = 0, extra, onSair }
             <button type="button" onClick={onCarrinho} className="btn btn-primario">
               🛒 Carrinho
               {itensCarrinho > 0 && <span className="badge-carrinho">{itensCarrinho}</span>}
+            </button>
+          )}
+          {usuario && onTrocarConta && (
+            <button type="button" onClick={onTrocarConta} className="btn btn-secundario" title="Entrar em outra conta (Usuário, Gerente ou Transportador)">
+              🔁 Trocar conta
             </button>
           )}
           {usuario && onSair && (

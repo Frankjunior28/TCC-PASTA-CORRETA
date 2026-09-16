@@ -11,7 +11,11 @@ export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, s
     setCarregando(true);
     try {
       if (modo === "login") {
-        await aoLogin({ email: campos.email, senha: campos.senha });
+        if (perfil === "usuario") {
+          await aoLogin({ email: campos.email, senha: campos.senha });
+        } else {
+          await aoLogin({ email: campos.email, cpf: campos.cpf });
+        }
       } else {
         await aoCadastro({ ...campos, perfil });
       }
@@ -83,18 +87,33 @@ export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, s
                   className="input"
                 />
               </div>
-              <div className="campo-form">
-                <label>Senha</label>
-                <input
-                  name="senha"
-                  type="password"
-                  placeholder="Sua senha"
-                  value={campos.senha || ""}
-                  onChange={handleChange}
-                  required
-                  className="input"
-                />
-              </div>
+              {perfil === "usuario" ? (
+                <div className="campo-form">
+                  <label>Senha</label>
+                  <input
+                    name="senha"
+                    type="password"
+                    placeholder="Sua senha"
+                    value={campos.senha || ""}
+                    onChange={handleChange}
+                    required
+                    className="input"
+                  />
+                </div>
+              ) : (
+                <div className="campo-form">
+                  <label>CPF</label>
+                  <input
+                    name="cpf"
+                    type="text"
+                    placeholder="000.000.000-00"
+                    value={campos.cpf || ""}
+                    onChange={handleChange}
+                    required
+                    className="input"
+                  />
+                </div>
+              )}
             </>
           ) : (
             PERFIS[perfil].campos.map((campo) => (

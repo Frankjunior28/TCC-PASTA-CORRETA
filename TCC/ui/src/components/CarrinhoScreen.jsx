@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { FotoProduto } from "./FotoProduto";
 import { formatarPreco } from "../constants";
+import * as api from "../services/api";
 
-export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSair }) {
+export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSair, onTrocarConta, offline }) {
+  const [salvando, setSalvando] = useState(false);
+  const [erroPedido, setErroPedido] = useState("");
+
   const alterarQtd = (id, delta) => {
     setCarrinho((prev) =>
       prev
@@ -18,9 +23,39 @@ export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSai
 
   const total = carrinho.reduce((soma, item) => soma + item.preco * item.qtd, 0);
 
+  const finalizarCompra = async () => {
+    if (offline) {
+      setCarrinho([]);
+      alert("Compra finalizada com sucesso! Obrigado pela preferência. 🪑");
+      return;
+    }
+    setSalvando(true);
+    setErroPedido("");
+    try {
+      await api.criarPedido({
+        cliente: {
+          nome: usuario?.nome || "Cliente",
+          email: usuario?.email || "",
+        },
+        itens: carrinho.map((item) => ({
+          produto: item.nome,
+          preco: item.preco,
+          qtd: item.qtd,
+        })),
+        total,
+      });
+      setCarrinho([]);
+      alert("Compra finalizada com sucesso! Seu pedido foi registrado. 🪑");
+    } catch (err) {
+      setErroPedido("Não foi possível registrar o pedido: " + err.message);
+    } finally {
+      setSalvando(false);
+    }
+  };
+
   return (
     <div className="page">
-      <Header usuario={usuario} onSair={onSair} />
+      <Header usuario={usuario} onSair={onSair} onTrocarConta={onTrocarConta} />
       <main className="shell">
         <button type="button" onClick={onVoltar} className="btn btn-secundario" style={{ marginBottom: 20 }}>
           ← Continuar comprando
@@ -68,16 +103,20 @@ export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSai
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setCarrinho([]);
-                    alert("Compra finalizada com sucesso! Obrigado pela preferência. 🪑");
-                  }}
+                  onClick={finalizarCompra}
+                  disabled={salvando}
                   className="btn btn-primario btn-grande"
                 >
-                  Finalizar compra
+                  {salvando ? "Finalizando..." : "Finalizar compra"}
                 </button>
               </div>
             </div>
+
+            {erroPedido && (
+              <p style={{ background: "rgba(192,57,43,0.08)", color: "#c0392b", fontSize: 13, padding: "10px 14px", borderRadius: 10, marginTop: 12 }}>
+                {erroPedido}
+              </p>
+            )}
           </>
         )}
       </main>

@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import * as api from "./services/api";
-import { PRODUTOS_FALLBACK } from "./constants";
+import { PRODUTOS_FALLBACK, PERFIS } from "./constants";
 import { LoginScreen } from "./components/LoginScreen";
 import { LojaScreen } from "./components/LojaScreen";
 import { ProdutoScreen } from "./components/ProdutoScreen";
 import { CarrinhoScreen } from "./components/CarrinhoScreen";
 import { GerenteScreen } from "./components/GerenteScreen";
 import { EntregadorScreen } from "./components/EntregadorScreen";
+import { TrocarContaModal } from "./components/TrocarContaModal";
 
 const carregarState = (chave, padrao) => {
   try {
@@ -34,6 +35,7 @@ function App() {
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
 
   const [toast, setToast] = useState("");
+  const [trocarAberto, setTrocarAberto] = useState(false);
 
   const mostrarToast = useCallback((msg) => {
     setToast(msg);
@@ -96,6 +98,13 @@ function App() {
   const aoCadastro = async (dados) => {
     const usuario = await api.cadastro({ ...dados, perfil });
     entrar({ ...usuario, perfil });
+  };
+
+  const aoTrocarConta = async ({ perfil: perfilAlvo, email, ...credenciais }) => {
+    const usuario = await api.login({ email, perfil: perfilAlvo, ...credenciais });
+    setTrocarAberto(false);
+    entrar(usuario);
+    mostrarToast(`Conta alterada: agora você está logado como ${PERFIS[usuario.perfil]?.label || usuario.perfil}`);
   };
 
   const sair = () => {
@@ -202,6 +211,7 @@ function App() {
           onAbrirCarrinho={() => setView("carrinho")}
           onAdicionarCarrinho={adicionarCarrinho}
           onSair={sair}
+          onTrocarConta={() => setTrocarAberto(true)}
         />
       )}
 
@@ -218,6 +228,7 @@ function App() {
           }}
           onVoltar={() => setView("loja")}
           onSair={sair}
+          onTrocarConta={() => setTrocarAberto(true)}
         />
       )}
 
@@ -228,6 +239,8 @@ function App() {
           setCarrinho={setCarrinho}
           onVoltar={() => setView("loja")}
           onSair={sair}
+          onTrocarConta={() => setTrocarAberto(true)}
+          offline={offline}
         />
       )}
 
@@ -241,12 +254,15 @@ function App() {
           onVerLoja={() => setView("loja")}
           onSair={sair}
           offline={offline}
+          onTrocarConta={() => setTrocarAberto(true)}
         />
       )}
 
       {view === "entregador" && (
-        <EntregadorScreen usuario={usuarioLogado} onSair={sair} />
+        <EntregadorScreen usuario={usuarioLogado} onSair={sair} onTrocarConta={() => setTrocarAberto(true)} />
       )}
+
+      {trocarAberto && <TrocarContaModal aoTrocar={aoTrocarConta} aoFechar={() => setTrocarAberto(false)} />}
 
       {toast && <div className="toast">{toast}</div>}
     </>

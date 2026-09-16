@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { FotoProduto } from "./FotoProduto";
 import { CATEGORIAS, formatarPreco } from "../constants";
+import * as api from "../services/api";
 
-export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAlternar, onVerLoja, onSair, offline }) {
+export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAlternar, onVerLoja, onSair, offline, onTrocarConta }) {
+  const [aba, setAba] = useState("produtos");
+  const [pedidos, setPedidos] = useState(null);
   const [form, setForm] = useState({
     nome: "",
     descricao: "",
@@ -76,11 +79,39 @@ export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAltern
     }
   };
 
+  useEffect(() => {
+    if (aba !== "vendas" || offline) return;
+    api
+      .listarPedidos()
+      .then(setPedidos)
+      .catch(() => setPedidos([]));
+  }, [aba, offline]);
+
+  const marcarEntregue = async (id) => {
+    try {
+      await api.atualizarStatusPedido(id, "entregue");
+      setPedidos((prev) => prev.map((p) => (p._id === id ? { ...p, status: "entregue" } : p)));
+    } catch (err) {
+      alert("Erro ao atualizar pedido: " + err.message);
+    }
+  };
+
+  const excluirPedido = async (id) => {
+    if (!window.confirm("Excluir este pedido?")) return;
+    try {
+      await api.excluirPedido(id);
+      setPedidos((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      alert("Erro ao excluir pedido: " + err.message);
+    }
+  };
+
   return (
     <div className="page">
       <Header
         usuario={usuario}
         onSair={onSair}
+        onTrocarConta={onTrocarConta}
         extra={
           <button type="button" onClick={onVerLoja} className="btn btn-escuro">
             🏪 Ver loja
@@ -95,9 +126,28 @@ export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAltern
           </div>
         )}
 
-        <h1 className="titulo-pagina">Gestão de produtos</h1>
+        <h1 className="titulo-pagina">Painel do Gerente</h1>
 
-        <div className="form-produto">
+        <div className="tabs-gerente">
+          <button
+            type="button"
+            className={`tab-gerente ${aba === "produtos" ? "tab-gerente-ativo" : ""}`}
+            onClick={() => setAba("produtos")}
+          >
+            📦 Produtos
+          </button>
+          <button
+            type="button"
+            className={`tab-gerente ${aba === "vendas" ? "tab-gerente-ativo" : ""}`}
+            onClick={() => setAba("vendas")}
+          >
+            💰 Vendas ({pedidos?.length ?? 0})
+          </button>
+        </div>
+
+        {aba === "produtos" ? (
+          <>
+            <div className="form-produto">
           <h3 className="form-titulo">{editandoId ? "Editar produto" : "Cadastrar produto"}</h3>
 
           <div className="campo-form">
@@ -204,7 +254,65 @@ export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAltern
               </div>
             ))
           )}
-        </div>
+          </div>
+        </>
+        ) : (
+          <div className="lista-vendas">
+            {offline ? (
+              <div className="vazio">Modo off-line: as vendas ficam indisponíveis sem o banco de dados.</div>
+            ) : pedidos === null ? (
+              <div className="estado">Carregando vendas...</div>
+            ) : pedidos.length === 0 ? (
+              <div className="vazio">
+                <span style={{ fontSize: 32 }}>🛒</span>
+                <p>Nenhuma venda registrada ainda.</p>
+              </div>
+            ) : (
+              pedidos.map((pedido) => (
+                <div key={pedido._id} className="linha-produto">
+                  <div className="linha-produto-info">
+                    <span className="linha-produto-nome">
+                      {pedido.cliente?.nome} — {formatarPreco(pedido.total)}
+                    </span>
+                    <span className="linha-produto-meta">
+                      {new Date(pedido.createdAt).toLocaleDateString("pt-BR")} ·{" "}
+                      {pedido.itens.length} item(ns) · {pedido.itens.map((i) => i.produto).join(", ")}
+                      <span
+                        className={`badge ${pedido.status === "entregue" ? "badge-publicado" : pedido.status === "cancelado" ? "badge-rascunho" : "badge-pendente"}`}
+                      >
+                        {pedido.status === "entregue"
+                          ? "Entregue"
+                          : pedido.status === "cancelado"
+                            ? "Cancelado"
+                            : "Pendente"}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="linha-produto-acoes">
+                    {pedido.status !== "entregue" && (
+                      <button
+                        type="button"
+                        onClick={() => marcarEntregue(pedido._id)}
+                        className="btn btn-secundario"
+                        style={{ fontSize: 12 }}
+                      >
+                        ✅ Entregar
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => excluirPedido(pedido._id)}
+                      className="btn btn-perigo"
+                      style={{ fontSize: 12 }}
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </main>
 
       <Footer />

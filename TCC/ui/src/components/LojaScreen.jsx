@@ -4,7 +4,7 @@ import { Footer } from "./Footer";
 import { ProductCard } from "./ProductCard";
 import { CATEGORIAS } from "../constants";
 
-export function LojaScreen({ usuario, produtos, carrinho, onAbrirProduto, onAbrirCarrinho, onAdicionarCarrinho, onSair, offline, carregando }) {
+export function LojaScreen({ usuario, produtos, carrinho, onAbrirProduto, onAbrirCarrinho, onAdicionarCarrinho, onSair, offline, carregando, onTrocarConta }) {
   const [filtro, setFiltro] = useState("Todos");
   const [busca, setBusca] = useState("");
 
@@ -24,6 +24,7 @@ export function LojaScreen({ usuario, produtos, carrinho, onAbrirProduto, onAbri
         onCarrinho={onAbrirCarrinho}
         itensCarrinho={totalItens}
         onSair={onSair}
+        onTrocarConta={onTrocarConta}
       />
 
       <main className="shell">

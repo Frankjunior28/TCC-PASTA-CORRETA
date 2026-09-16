@@ -34,11 +34,26 @@ export const criarUsuario = async (req, res) => {
 
 export const loginUsuario = async (req, res) => {
   try {
-    const { email, senha } = req.body;
+    const { email, senha, cpf, perfil } = req.body;
     const usuario = await Usuario.findOne({ email });
-    if (!usuario || usuario.senha !== senha) {
+    if (!usuario) return res.status(401).json({ message: "Email ou senha inválidos" });
+
+    if (perfil && usuario.perfil !== perfil) {
+      return res.status(401).json({ message: "Conta não encontrada para o perfil selecionado" });
+    }
+
+    const ehCorporativo = ["gerente", "transportador"].includes(usuario.perfil);
+
+    if (ehCorporativo) {
+      const cpfDigitado = String(cpf || "").replace(/\D/g, "");
+      const cpfSalvo = String(usuario.cpf || "").replace(/\D/g, "");
+      if (!cpfSalvo || cpfDigitado !== cpfSalvo) {
+        return res.status(401).json({ message: "Email ou CPF inválidos" });
+      }
+    } else if (!usuario.senha || usuario.senha !== senha) {
       return res.status(401).json({ message: "Email ou senha inválidos" });
     }
+
     const { senha: _, ...semSenha } = usuario.toObject();
     res.status(200).json(semSenha);
   } catch (error) {

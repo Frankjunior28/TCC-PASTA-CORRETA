@@ -4,13 +4,13 @@ import { Footer } from "./Footer";
 import { FotoProduto } from "./FotoProduto";
 import { formatarPreco } from "../constants";
 
-export function ProdutoScreen({ usuario, produto, onComprar, onAdicionar, onVoltar, onSair }) {
+export function ProdutoScreen({ usuario, produto, onComprar, onAdicionar, onVoltar, onSair, onTrocarConta }) {
   const [imgIdx, setImgIdx] = useState(0);
 
   if (!produto) {
     return (
       <div className="page">
-        <Header usuario={usuario} onSair={onSair} />
+        <Header usuario={usuario} onSair={onSair} onTrocarConta={onTrocarConta} />
         <main className="shell">
           <div className="vazio">Produto não encontrado.</div>
         </main>
@@ -29,7 +29,7 @@ export function ProdutoScreen({ usuario, produto, onComprar, onAdicionar, onVolt
 
   return (
     <div className="page">
-      <Header usuario={usuario} onSair={onSair} />
+      <Header usuario={usuario} onSair={onSair} onTrocarConta={onTrocarConta} />
       <main className="shell">
         <button type="button" onClick={onVoltar} className="btn btn-secundario" style={{ marginBottom: 20 }}>
           ← Voltar à loja
