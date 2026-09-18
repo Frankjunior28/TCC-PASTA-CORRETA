@@ -6,7 +6,7 @@ import { LojaScreen } from "./components/LojaScreen";
 import { ProdutoScreen } from "./components/ProdutoScreen";
 import { CarrinhoScreen } from "./components/CarrinhoScreen";
 import { GerenteScreen } from "./components/GerenteScreen";
-import { EntregadorScreen } from "./components/EntregadorScreen";
+import { AdministradorScreen } from "./components/AdministradorScreen";
 import { TrocarContaModal } from "./components/TrocarContaModal";
 
 const carregarState = (chave, padrao) => {
@@ -85,7 +85,7 @@ function App() {
     setUsuarioLogado(usuario);
     const rotas = {
       gerente: "gerente",
-      transportador: "entregador",
+      administrador: "administrador",
     };
     setView(rotas[usuario.perfil] || "loja");
   };
@@ -146,7 +146,7 @@ function App() {
       }
       await recarregarProdutos();
     } catch (err) {
-      alert("Erro ao salvar produto: " + err.message);
+      alert(api.mensagemClaraDeErro(err, "salvar o produto"));
     }
   };
 
@@ -159,7 +159,7 @@ function App() {
       await api.deleteProduto(id);
       await recarregarProdutos();
     } catch (err) {
-      alert("Erro ao excluir produto: " + err.message);
+      alert(api.mensagemClaraDeErro(err, "excluir o produto"));
     }
   };
 
@@ -178,7 +178,7 @@ function App() {
       await api.updateProduto(id, dados);
       await recarregarProdutos();
     } catch (err) {
-      alert("Erro ao atualizar: " + err.message);
+      alert(api.mensagemClaraDeErro(err, "atualizar a publicação do produto"));
     }
   };
 
@@ -258,8 +258,8 @@ function App() {
         />
       )}
 
-      {view === "entregador" && (
-        <EntregadorScreen usuario={usuarioLogado} onSair={sair} onTrocarConta={() => setTrocarAberto(true)} />
+      {view === "administrador" && (
+        <AdministradorScreen usuario={usuarioLogado} onSair={sair} onTrocarConta={() => setTrocarAberto(true)} />
       )}
 
       {trocarAberto && <TrocarContaModal aoTrocar={aoTrocarConta} aoFechar={() => setTrocarAberto(false)} />}

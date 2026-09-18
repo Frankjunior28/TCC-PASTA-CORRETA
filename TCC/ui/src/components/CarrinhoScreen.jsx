@@ -47,7 +47,7 @@ export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSai
       setCarrinho([]);
       alert("Compra finalizada com sucesso! Seu pedido foi registrado. 🪑");
     } catch (err) {
-      setErroPedido("Não foi possível registrar o pedido: " + err.message);
+      setErroPedido(api.mensagemClaraDeErro(err, "registrar o pedido"));
     } finally {
       setSalvando(false);
     }
@@ -113,7 +113,7 @@ export function CarrinhoScreen({ usuario, carrinho, setCarrinho, onVoltar, onSai
             </div>
 
             {erroPedido && (
-              <p style={{ background: "rgba(192,57,43,0.08)", color: "#c0392b", fontSize: 13, padding: "10px 14px", borderRadius: 10, marginTop: 12 }}>
+              <p className="aviso-erro" style={{ marginTop: 12 }}>
                 {erroPedido}
               </p>
             )}

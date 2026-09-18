@@ -18,20 +18,14 @@ export const PERFIS = {
       { name: "cpf", label: "CPF", type: "text", placeholder: "000.000.000-00" },
     ],
   },
-  transportador: {
-    label: "Transportador",
+  administrador: {
+    label: "Administrador",
     campos: [
       { name: "nome", label: "Nome", type: "text", placeholder: "Seu nome completo" },
-      { name: "email", label: "Email", type: "email", placeholder: "seu@email.com" },
+      { name: "email", label: "Email", type: "email", placeholder: "seu@empresa.com" },
       { name: "senha", label: "Senha", type: "password", placeholder: "Sua senha" },
-      { name: "cpf", label: "CPF", type: "text", placeholder: "000.000.000-00" },
       { name: "telefone", label: "Telefone", type: "tel", placeholder: "(00) 00000-0000" },
-      {
-        name: "tipoVeiculo",
-        label: "Tipo de veículo",
-        type: "select",
-        options: ["Caminhão", "Van", "Carreta", "Moto", "Ônibus"],
-      },
+      { name: "cpf", label: "CPF", type: "text", placeholder: "000.000.000-00" },
     ],
   },
 };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PERFIS, TIPOS } from "../constants";
+import { mensagemClaraDeErro } from "../services/api";
 
 export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, setModo, aoLogin, aoCadastro }) {
   const [erro, setErro] = useState("");
@@ -12,15 +13,15 @@ export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, s
     try {
       if (modo === "login") {
         if (perfil === "usuario") {
-          await aoLogin({ email: campos.email, senha: campos.senha });
+          await aoLogin({ email: campos.email, senha: campos.senha, perfil });
         } else {
-          await aoLogin({ email: campos.email, cpf: campos.cpf });
+          await aoLogin({ email: campos.email, cpf: campos.cpf, perfil });
         }
       } else {
         await aoCadastro({ ...campos, perfil });
       }
     } catch (err) {
-      setErro(err.message);
+      setErro(mensagemClaraDeErro(err, modo === "login" ? "entrar na sua conta" : "criar sua conta"));
     } finally {
       setCarregando(false);
     }
@@ -67,7 +68,7 @@ export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, s
         </div>
 
         {erro && (
-          <p style={{ background: "rgba(192,57,43,0.08)", color: "#c0392b", fontSize: 13, padding: "10px 14px", borderRadius: 10, margin: "0 0 14px" }}>
+          <p className="aviso-erro" style={{ margin: "0 0 14px" }}>
             {erro}
           </p>
         )}
@@ -128,7 +129,7 @@ export function LoginScreen({ perfil, modo, campos, handleChange, mudarPerfil, s
                     className="select"
                   >
                     <option value="" disabled>
-                      Selecione o tipo de veículo
+                      Selecione uma opção
                     </option>
                     {campo.options.map((opcao) => (
                       <option key={opcao} value={opcao}>

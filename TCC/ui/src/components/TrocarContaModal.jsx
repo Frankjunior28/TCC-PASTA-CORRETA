@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PERFIS, TIPOS } from "../constants";
+import { mensagemClaraDeErro } from "../services/api";
 
 export function TrocarContaModal({ aoTrocar, aoFechar }) {
   const [perfil, setPerfil] = useState("usuario");
@@ -21,7 +22,7 @@ export function TrocarContaModal({ aoTrocar, aoFechar }) {
         ...(precisaCpf ? { cpf: credencial } : { senha: credencial }),
       });
     } catch (err) {
-      setErro(err.message);
+      setErro(mensagemClaraDeErro(err, "trocar de conta"));
     } finally {
       setCarregando(false);
     }
@@ -79,7 +80,7 @@ export function TrocarContaModal({ aoTrocar, aoFechar }) {
           </div>
 
           {erro && (
-            <p style={{ background: "rgba(192,57,43,0.08)", color: "#c0392b", fontSize: 13, padding: "10px 14px", borderRadius: 10, margin: 0 }}>
+            <p className="aviso-erro" style={{ margin: 0 }}>
               {erro}
             </p>
           )}

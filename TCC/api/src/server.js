@@ -6,10 +6,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
 import gerenteRoutes from "./routes/gerenteRoutes.js";
-import transportadorRoutes from "./routes/transportadorRoutes.js";
+import administradorRoutes from "./routes/AdministradorRoutes.js";
 import produtoRoutes from "./routes/produtoRoutes.js";
 import pedidoRoutes from "./routes/pedidoRoutes.js";
 import { seedProdutos } from "./seed.js";
+import Usuario from "./models/usuarios.js";
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.use(express.json());
 
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/gerentes", gerenteRoutes);
-app.use("/api/transportadores", transportadorRoutes);
+app.use("/api/administradores", administradorRoutes);
 app.use("/api/produtos", produtoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
 
@@ -51,9 +52,10 @@ const iniciarServidor = () =>
   app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
 mongoose
-  .connect(MONGO_URI, { bufferCommands: false })
+  .connect(MONGO_URI)
   .then(async () => {
     console.log("Banco de dados MongoDB conectado!");
+    await Usuario.syncIndexes();
     await seedProdutos();
     iniciarServidor();
   })

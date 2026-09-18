@@ -21,13 +21,17 @@ export const buscarUsuarioPorId = async (req, res) => {
 
 export const criarUsuario = async (req, res) => {
   try {
-    const existe = await Usuario.findOne({ email: req.body.email });
-    if (existe) return res.status(409).json({ message: "Email já cadastrado" });
+    const perfil = req.body.perfil || "usuario";
+    const existe = await Usuario.findOne({ email: req.body.email, perfil });
+    if (existe) return res.status(409).json({ message: "Email já cadastrado para este perfil" });
 
     const novoUsuario = await Usuario.create(req.body);
     const { senha, ...semSenha } = novoUsuario.toObject();
     res.status(201).json(semSenha);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Email já cadastrado para este perfil" });
+    }
     res.status(400).json({ message: "Erro ao criar usuário", error: error.message });
   }
 };
@@ -35,14 +39,15 @@ export const criarUsuario = async (req, res) => {
 export const loginUsuario = async (req, res) => {
   try {
     const { email, senha, cpf, perfil } = req.body;
-    const usuario = await Usuario.findOne({ email });
+    const query = { email, ...(perfil ? { perfil } : {}) };
+    const usuario = await Usuario.findOne(query);
     if (!usuario) return res.status(401).json({ message: "Email ou senha inválidos" });
 
     if (perfil && usuario.perfil !== perfil) {
       return res.status(401).json({ message: "Conta não encontrada para o perfil selecionado" });
     }
 
-    const ehCorporativo = ["gerente", "transportador"].includes(usuario.perfil);
+    const ehCorporativo = ["gerente", "administrador"].includes(usuario.perfil);
 
     if (ehCorporativo) {
       const cpfDigitado = String(cpf || "").replace(/\D/g, "");

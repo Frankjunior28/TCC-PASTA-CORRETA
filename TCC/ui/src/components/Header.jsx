@@ -29,7 +29,7 @@ export function Header({ usuario, onCarrinho, itensCarrinho = 0, extra, onSair, 
             </button>
           )}
           {usuario && onTrocarConta && (
-            <button type="button" onClick={onTrocarConta} className="btn btn-secundario" title="Entrar em outra conta (Usuário, Gerente ou Transportador)">
+            <button type="button" onClick={onTrocarConta} className="btn btn-secundario" title="Entrar em outra conta (Usuário, Gerente ou Administrador)">
               🔁 Trocar conta
             </button>
           )}
@@ -49,7 +49,7 @@ function PERFIS_DE_USUARIO(perfil) {
   const labels = {
     usuario: "Usuário",
     gerente: "Gerente",
-    transportador: "Transportador",
+    administrador: "Administrador",
   };
   return encontrado ? labels[perfil] || perfil : "Usuário";
 }

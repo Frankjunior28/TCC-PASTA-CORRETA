@@ -92,7 +92,7 @@ export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAltern
       await api.atualizarStatusPedido(id, "entregue");
       setPedidos((prev) => prev.map((p) => (p._id === id ? { ...p, status: "entregue" } : p)));
     } catch (err) {
-      alert("Erro ao atualizar pedido: " + err.message);
+      alert(api.mensagemClaraDeErro(err, "atualizar o pedido"));
     }
   };
 
@@ -102,7 +102,7 @@ export function GerenteScreen({ usuario, produtos, onSalvar, onExcluir, onAltern
       await api.excluirPedido(id);
       setPedidos((prev) => prev.filter((p) => p._id !== id));
     } catch (err) {
-      alert("Erro ao excluir pedido: " + err.message);
+      alert(api.mensagemClaraDeErro(err, "excluir o pedido"));
     }
   };
 
